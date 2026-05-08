@@ -487,137 +487,154 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-100 py-10 px-4">
-      <div className="max-w-xl mx-auto">
-        <div className="mb-7">
-          <h1 className="text-2xl font-bold text-gray-900">Kompetenz-Finder</h1>
-          <p className="text-sm text-gray-500 mt-0.5">
-            Überfachliche Kompetenzen in den Unterricht einbauen
-          </p>
-        </div>
-
-        {/* Input */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 mb-5 space-y-4">
+    <main className="min-h-screen bg-slate-100">
+      {/* Top bar */}
+      <div className="bg-white border-b border-gray-200 px-6 py-4">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-              Unterrichtsthema *
-            </label>
-            <textarea
-              value={thema}
-              onChange={(e) => setThema(e.target.value)}
-              placeholder='z.B. «Fotosynthese», «Erster Weltkrieg», «Bruchrechnen»...'
-              className="w-full border border-gray-200 rounded-xl p-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none bg-gray-50"
-              rows={2}
-              onKeyDown={(e) => { if (e.key === "Enter" && e.metaKey) analyse(); }}
-            />
+            <h1 className="text-xl font-bold text-gray-900">Kompetenz-Finder</h1>
+            <p className="text-sm text-gray-500">Überfachliche Kompetenzen in den Unterricht einbauen</p>
           </div>
+        </div>
+      </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Fach</label>
-              <input
-                type="text"
-                value={fach}
-                onChange={(e) => setFach(e.target.value)}
-                placeholder="z.B. Biologie..."
-                className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Zyklus</label>
-              <div className="flex gap-1.5">
-                {ZYKLEN.map((z) => (
-                  <button key={z} onClick={() => setZyklus((p) => (p === z ? "" : z))} title={ZYKLUS_LABELS[z]}
-                    className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-colors ${zyklus === z ? "bg-blue-600 text-white shadow-sm" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}>
-                    {z.replace("Zyklus ", "Z")}
-                  </button>
-                ))}
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <div className="lg:grid lg:grid-cols-[340px_1fr] lg:gap-6 space-y-5 lg:space-y-0 items-start">
+
+          {/* ── Left: Input (sticky on desktop) ─────────────────────────── */}
+          <div className="lg:sticky lg:top-8 space-y-4">
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-200 p-5 space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+                  Unterrichtsthema *
+                </label>
+                <textarea
+                  value={thema}
+                  onChange={(e) => setThema(e.target.value)}
+                  placeholder='z.B. «Fotosynthese», «Erster Weltkrieg», «Bruchrechnen»...'
+                  className="w-full border border-gray-200 rounded-xl p-3 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none bg-gray-50"
+                  rows={3}
+                  onKeyDown={(e) => { if (e.key === "Enter" && e.metaKey) analyse(); }}
+                />
               </div>
-            </div>
-          </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
-              Framework-Filter <span className="normal-case font-normal text-gray-400">(leer = alle)</span>
-            </label>
-            <div className="flex gap-2">
-              {FRAMEWORKS.map((fw) => {
-                const c = FRAMEWORK_COLORS[fw];
-                return (
-                  <button key={fw} onClick={() => toggleFramework(fw)}
-                    className={`flex-1 px-2 py-1.5 rounded-xl text-xs font-medium border transition-colors ${selectedFrameworks.includes(fw) ? c.badge + " border-current" : "bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100"}`}>
-                    {fw}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <button onClick={analyse} disabled={analysing || !thema.trim()}
-            className="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm shadow-sm">
-            {analysing ? "Analysiere…" : "Kompetenzen vorschlagen →"}
-          </button>
-        </div>
-
-        {/* Loading */}
-        {analysing && (
-          <div className="bg-white rounded-2xl border border-gray-200 p-5">
-            <div className="flex items-center gap-2 text-sm text-gray-400">
-              <span className="inline-block w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
-              Analyse läuft…
-            </div>
-          </div>
-        )}
-
-        {/* Result */}
-        {!analysing && parsed && (
-          <div className="space-y-3">
-            <div className="bg-white rounded-2xl border border-gray-200 p-5">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Einschätzung</p>
-              <p className="text-sm text-gray-700 leading-relaxed">{parsed.einschaetzung}</p>
-            </div>
-
-            {parsed.kompetenzen.map((k, i) => (
-              <KompetenzCard key={`k${i}`}
-                k={k} i={i} isBonus={false}
-                thema={thema} fach={fach} zyklus={zyklus}
-                task={tasks[`k${i}`]} taskLoading={taskLoading[`k${i}`]}
-                feedbacks={feedbacks}
-                onThumbsUp={handleThumbsUp}
-                onThumbsDown={handleThumbsDown}
-                onGenerateTask={(idx, komp) => generateTask(`k${idx}`, komp)}
-              />
-            ))}
-
-            {parsed.bonus.length > 0 && (
-              <>
-                <div className="pt-2">
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide px-1">
-                    Weniger offensichtlich
-                  </p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Fach</label>
+                  <input
+                    type="text"
+                    value={fach}
+                    onChange={(e) => setFach(e.target.value)}
+                    placeholder="z.B. Biologie..."
+                    className="w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
+                  />
                 </div>
-                {parsed.bonus.map((k, i) => (
-                  <KompetenzCard key={`b${i}`}
-                    k={k} i={i} isBonus={true}
+                <div>
+                  <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">Zyklus</label>
+                  <div className="flex gap-1.5">
+                    {ZYKLEN.map((z) => (
+                      <button key={z} onClick={() => setZyklus((p) => (p === z ? "" : z))} title={ZYKLUS_LABELS[z]}
+                        className={`flex-1 py-2 rounded-xl text-xs font-semibold transition-colors ${zyklus === z ? "bg-blue-600 text-white shadow-sm" : "bg-gray-100 text-gray-500 hover:bg-gray-200"}`}>
+                        {z.replace("Zyklus ", "Z")}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1.5">
+                  Framework-Filter <span className="normal-case font-normal text-gray-400">(leer = alle)</span>
+                </label>
+                <div className="flex gap-2">
+                  {FRAMEWORKS.map((fw) => {
+                    const c = FRAMEWORK_COLORS[fw];
+                    return (
+                      <button key={fw} onClick={() => toggleFramework(fw)}
+                        className={`flex-1 px-2 py-1.5 rounded-xl text-xs font-medium border transition-colors ${selectedFrameworks.includes(fw) ? c.badge + " border-current" : "bg-gray-50 text-gray-500 border-gray-200 hover:bg-gray-100"}`}>
+                        {fw}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <button onClick={analyse} disabled={analysing || !thema.trim()}
+                className="w-full bg-blue-600 text-white font-semibold py-3 rounded-xl hover:bg-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors text-sm shadow-sm">
+                {analysing ? "Analysiere…" : "Kompetenzen vorschlagen →"}
+              </button>
+            </div>
+
+            {/* Einschätzung in sidebar on desktop */}
+            {!analysing && parsed && (
+              <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Einschätzung</p>
+                <p className="text-sm text-gray-700 leading-relaxed">{parsed.einschaetzung}</p>
+              </div>
+            )}
+
+            {analysing && (
+              <div className="bg-white rounded-2xl border border-gray-200 p-5">
+                <div className="flex items-center gap-2 text-sm text-gray-400">
+                  <span className="inline-block w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
+                  Analyse läuft…
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* ── Right: Results ───────────────────────────────────────────── */}
+          <div>
+            {!analysing && parsed && (
+              <div className="space-y-3">
+                {parsed.kompetenzen.map((k, i) => (
+                  <KompetenzCard key={`k${i}`}
+                    k={k} i={i} isBonus={false}
                     thema={thema} fach={fach} zyklus={zyklus}
-                    task={tasks[`b${i}`]} taskLoading={taskLoading[`b${i}`]}
+                    task={tasks[`k${i}`]} taskLoading={taskLoading[`k${i}`]}
                     feedbacks={feedbacks}
                     onThumbsUp={handleThumbsUp}
                     onThumbsDown={handleThumbsDown}
-                    onGenerateTask={(idx, komp) => generateTask(`b${idx}`, komp)}
+                    onGenerateTask={(idx, komp) => generateTask(`k${idx}`, komp)}
                   />
                 ))}
-              </>
+
+                {parsed.bonus.length > 0 && (
+                  <>
+                    <div className="pt-2">
+                      <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide px-1">
+                        Weniger offensichtlich
+                      </p>
+                    </div>
+                    {parsed.bonus.map((k, i) => (
+                      <KompetenzCard key={`b${i}`}
+                        k={k} i={i} isBonus={true}
+                        thema={thema} fach={fach} zyklus={zyklus}
+                        task={tasks[`b${i}`]} taskLoading={taskLoading[`b${i}`]}
+                        feedbacks={feedbacks}
+                        onThumbsUp={handleThumbsUp}
+                        onThumbsDown={handleThumbsDown}
+                        onGenerateTask={(idx, komp) => generateTask(`b${idx}`, komp)}
+                      />
+                    ))}
+                  </>
+                )}
+              </div>
+            )}
+
+            {!analysing && rawResult && !parsed && (
+              <div className="bg-white rounded-2xl border border-gray-200 p-5 prose prose-sm max-w-none">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{rawResult}</ReactMarkdown>
+              </div>
+            )}
+
+            {!analysing && !parsed && !rawResult && (
+              <div className="hidden lg:flex h-64 items-center justify-center rounded-2xl border-2 border-dashed border-gray-200 text-sm text-gray-400">
+                Thema eingeben und Analyse starten →
+              </div>
             )}
           </div>
-        )}
-
-        {/* Fallback */}
-        {!analysing && rawResult && !parsed && (
-          <div className="bg-white rounded-2xl border border-gray-200 p-5 prose prose-sm max-w-none">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{rawResult}</ReactMarkdown>
-          </div>
-        )}
+        </div>
       </div>
 
       {/* Feedback modal */}
