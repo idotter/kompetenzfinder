@@ -13,31 +13,39 @@ export async function POST(req: NextRequest) {
     "Zyklus 3": "Zyklus 3 (7.–9. Klasse, ca. 12–15 Jahre)",
   };
 
-  const prompt = `Erstelle eine konkrete Aufgabenstellung für Schüler:innen.
+  const zyklusHinweis: Record<string, string> = {
+    "Zyklus 1": "Sprache einfach halten (kurze Sätze, bekannte Wörter), spielerische Elemente, körperliche Aktivität wenn möglich, max. 20 Minuten Aufmerksamkeit",
+    "Zyklus 2": "Klare Struktur mit Schritten, Einzel- oder Partnerarbeit, konkrete Materialien oder Vorlagen, 30–45 Minuten realistisch",
+    "Zyklus 3": "Eigenverantwortung betonen, Reflexionsanteil einbauen, komplexere Fragestellungen möglich, Ergebnis kann präsentiert oder diskutiert werden",
+  };
+
+  const prompt = `Du bist eine erfahrene Schweizer Lehrperson und Didaktik-Expertin. Erstelle eine konkrete, direkt einsetzbare Aufgabe für Schüler:innen.
 
 Kontext:
 - Unterrichtsthema: ${thema}
 ${fach ? `- Fach: ${fach}` : ""}
 ${zyklus ? `- Stufe: ${zyklusLabel[zyklus] ?? zyklus}` : ""}
 - Zu fördernde Kompetenz: ${kompetenz} (${framework} · ${bereich})
-- Begründung der Wahl: ${begruendung}
+- Warum diese Kompetenz passt: ${begruendung}
+${zyklus && zyklusHinweis[zyklus] ? `- Didaktische Hinweise für diese Stufe: ${zyklusHinweis[zyklus]}` : ""}
 
-Erstelle eine klar formulierte Aufgabenstellung für die Schüler:innen, die:
-1. Direkt in den Fachinhalt eingebettet ist (nicht als Zusatz wirkt)
-2. Die genannte Kompetenz explizit fördert
-3. Altersgerecht formuliert ist
-4. Konkret und durchführbar ist (nicht zu vage)
+QUALITÄTSKRITERIEN:
+- Die Aufgabenstellung soll direkt an Schüler:innen gerichtet sein (Du-/Ihr-Form), nicht an die Lehrperson
+- Die Kompetenz soll durch die Aufgabe geübt werden — nicht nur erwähnt werden
+- Kein «Recherchiert das Thema» oder andere Leerformeln — sei spezifisch für DIESES Thema
+- Die Aufgabe soll realistisch in einer Unterrichtsstunde durchführbar sein
 
-Format:
+FORMAT — exakt einhalten:
+
 **Aufgabenstellung**
-[Die Aufgabe direkt, so wie sie an Schüler:innen kommuniziert werden könnte — 3–6 Sätze]
+[Die Aufgabe direkt in der Du-/Ihr-Form, so wie sie an Schüler:innen kommuniziert wird — 3–5 Sätze, präzise und motivierend]
 
 **Was die Lehrperson vorbereiten muss**
-- [Punkt 1]
-- [Punkt 2]
+- [Konkretes Material oder Vorbereitung 1]
+- [Konkretes Material oder Vorbereitung 2]
 
 **Hinweis zur Kompetenzförderung**
-[1 Satz: Wie wird die Kompetenz konkret sichtbar/geübt?]
+[1 Satz: Wo genau wird die Kompetenz in dieser Aufgabe sichtbar und geübt?]
 
 Antworte auf Deutsch.`;
 
