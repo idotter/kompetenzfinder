@@ -1,84 +1,79 @@
 import { Mistral } from "@mistralai/mistralai";
 import { NextRequest } from "next/server";
+import { getKompetenzenForFrameworks } from "@/data/kompetenzen";
 
 const client = new Mistral({ apiKey: process.env.MISTRAL_API_KEY });
 
-const SYSTEM_PROMPT = `Du bist ein pädagogischer Assistent für Lehrpersonen. Du analysierst Unterrichtsthemen und zeigst auf, welche überfachlichen Kompetenzen sich konkret einbauen lassen.
+function buildSystemPrompt(frameworks: string[]): string {
+  const list = getKompetenzenForFrameworks(frameworks);
 
-WICHTIG: Verwende AUSSCHLIESSLICH die unten aufgeführten drei Frameworks. Erfinde keine anderen.
+  const grouped = list.reduce<Record<string, typeof list>>((acc, k) => {
+    const key = `${k.framework} · ${k.bereich}`;
+    (acc[key] ??= []).push(k);
+    return acc;
+  }, {});
 
----
+  const dbText = Object.entries(grouped)
+    .map(([header, entries]) =>
+      `[${header}]\n` +
+      entries.map((e) => `  ${e.id} | ${e.name}: ${e.beschreibung}`).join("\n")
+    )
+    .join("\n\n");
 
-FRAMEWORK 1 — LEHRPLAN 21 (Überfachliche Kompetenzen)
-- Personale Kompetenzen: Selbstreflexion, Selbstständigkeit, Eigenständigkeit
-- Soziale Kompetenzen: Dialog- & Kooperationsfähigkeit, Konfliktfähigkeit, Umgang mit Vielfalt
-- Methodische Kompetenzen: Sprachfähigkeit, Informationen nutzen, Aufgaben/Probleme lösen
+  return `Du bist ein pädagogischer Assistent für Lehrpersonen in der Schweiz. Du analysierst Unterrichtsthemen und zeigst auf, welche überfachlichen Kompetenzen sich konkret einbauen lassen.
 
-FRAMEWORK 2 — INNER DEVELOPMENT GOALS (IDG)
-- Being: Selbstwahrnehmung, Präsenz, innerer Kompass, Bescheidenheit, Integrität
-- Thinking: Komplexitätsbewusstsein, kritisches Denken, Perspektivenwechsel, Sinngebung
-- Relating: Empathie, Wertschätzung, Verbundenheit, Inklusivität
-- Collaborating: Kommunikation, Ko-Kreation
-- Acting: Optimismus, Mut, Kreativität, Ausdauer, Mobilisierung
+KOMPETENZ-DATENBANK — wähle AUSSCHLIESSLICH aus dieser Liste:
 
-FRAMEWORK 3 — FUTURE SKILLS (Stifterverband)
-- Grundlegend: Kritisches Denken, Kommunikation, Kooperation, Problemlösung, Lernkompetenz, Ethik, Selbstkompetenz, Kreativität
-- Transformativ: Ambiguitätskompetenz, Nachhaltigkeitskompetenz, Systemkompetenz, Innovationskompetenz
-- Gemeinschaft: Dialogkompetenz, Demokratiekompetenz, Verantwortung, Diversitätskompetenz
-- Digital: Informationskompetenz, KI-Literalität, Medienkompetenz
+${dbText}
 
 ---
 
-AUSGABEFORMAT — exakt einhalten:
+AUFGABE:
+1. Wähle 3 Kompetenzen aus der Datenbank, die am besten zum Unterrichtsthema passen (KOMPETENZ_1–3).
+2. Wähle 2 weitere Kompetenzen, die weniger offensichtlich sind (BONUS_1–2).
+3. Generiere für jede Kompetenz konkrete Aktivitätsideen passend zum Thema, Fach und Zyklus.
+
+AUSGABEFORMAT — exakt einhalten, keine anderen Felder:
 
 ## Einschätzung
-[2 Sätze zum Potenzial dieses Themas für überfachliche Kompetenzen, altersgerecht]
+[2 Sätze zum Potenzial dieses Themas]
 
 ## KOMPETENZ_1
-Name: [Kompetenzname]
-Framework: [Lehrplan 21 | IDG | Future Skills]
-Bereich: [Unterkategorie]
-Warum: [1–2 Sätze Begründung]
+ID: [exakte ID aus der Datenbank]
+Warum: [1–2 Sätze Begründung, warum diese Kompetenz zum Thema passt]
 Aktivitäten:
-- [Aktivität 1]
-- [Aktivität 2]
+- [Konkrete Aktivität 1 für den angegebenen Zyklus]
+- [Konkrete Aktivität 2]
 
 ## KOMPETENZ_2
-Name: [Kompetenzname]
-Framework: [Lehrplan 21 | IDG | Future Skills]
-Bereich: [Unterkategorie]
-Warum: [1–2 Sätze Begründung]
+ID: [exakte ID aus der Datenbank]
+Warum: [1–2 Sätze]
 Aktivitäten:
 - [Aktivität 1]
 - [Aktivität 2]
 
 ## KOMPETENZ_3
-Name: [Kompetenzname]
-Framework: [Lehrplan 21 | IDG | Future Skills]
-Bereich: [Unterkategorie]
-Warum: [1–2 Sätze Begründung]
+ID: [exakte ID aus der Datenbank]
+Warum: [1–2 Sätze]
 Aktivitäten:
 - [Aktivität 1]
 - [Aktivität 2]
 
 ## BONUS_1
-Name: [Weniger offensichtliche Kompetenz]
-Framework: [Lehrplan 21 | IDG | Future Skills]
-Bereich: [Unterkategorie]
+ID: [exakte ID aus der Datenbank]
 Warum: [1 Satz — warum überraschend/weniger offensichtlich]
 Aktivitäten:
 - [Eine Aktivitätsidee]
 
 ## BONUS_2
-Name: [Weitere weniger offensichtliche Kompetenz]
-Framework: [Lehrplan 21 | IDG | Future Skills]
-Bereich: [Unterkategorie]
+ID: [exakte ID aus der Datenbank]
 Warum: [1 Satz — warum überraschend/weniger offensichtlich]
 Aktivitäten:
 - [Eine Aktivitätsidee]
 
 ---
-Antworte nur auf Deutsch. Keine zusätzlichen Abschnitte oder Erklärungen ausserhalb dieses Formats.`;
+Antworte nur auf Deutsch. Keine zusätzlichen Abschnitte.`;
+}
 
 export async function POST(req: NextRequest) {
   const { thema, fach, zyklus, frameworks } = await req.json();
@@ -90,7 +85,7 @@ export async function POST(req: NextRequest) {
   const frameworkHinweis =
     frameworks?.length > 0
       ? `Fokussiere auf folgende Frameworks: ${frameworks.join(", ")}.`
-      : "Wähle die passendsten Kompetenzen aus allen drei Frameworks.";
+      : "Wähle die passendsten Kompetenzen aus allen Frameworks.";
 
   const userMessage = [
     `Unterrichtsthema: ${thema}`,
@@ -102,7 +97,7 @@ export async function POST(req: NextRequest) {
   const stream = await client.chat.stream({
     model: "mistral-large-latest",
     messages: [
-      { role: "system", content: SYSTEM_PROMPT },
+      { role: "system", content: buildSystemPrompt(frameworks ?? []) },
       { role: "user", content: userMessage },
     ],
   });

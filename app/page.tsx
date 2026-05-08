@@ -3,6 +3,7 @@
 import { useState, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { KOMPETENZEN_BY_ID } from "@/data/kompetenzen";
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
@@ -23,9 +24,11 @@ const DEFAULT_COLORS = { badge: "bg-gray-100 text-gray-600 border-gray-200", dot
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface Kompetenz {
+  id?: string;
   name: string;
   framework: string;
   bereich: string;
+  url?: string;
   warum: string;
   aktivitaeten: string[];
   isBonus?: boolean;
@@ -83,10 +86,24 @@ function parseResult(raw: string): AnalyseResult | null {
       if (section === "ein" && t) {
         einLines.push(stripBold(t));
       } else if (section === "komp" && cur) {
+        const id = extractField(t, "ID");
         const name = extractField(t, "Name");
         const fw = extractField(t, "Framework");
         const bereich = extractField(t, "Bereich");
         const warum = extractField(t, "Warum");
+        if (id) {
+          const entry = KOMPETENZEN_BY_ID[id];
+          if (entry) {
+            cur.id = id;
+            cur.name = entry.name;
+            cur.framework = entry.framework;
+            cur.bereich = entry.bereich;
+            cur.url = entry.url;
+          } else {
+            cur.id = id;
+          }
+          continue;
+        }
         if (name) { cur.name = name; continue; }
         if (fw) { cur.framework = fw; continue; }
         if (bereich) { cur.bereich = bereich; continue; }
@@ -315,7 +332,20 @@ function KompetenzCard({
           />
         </div>
 
-        <h2 className="text-lg font-bold text-gray-900 mb-3">{k.name}</h2>
+        <div className="flex items-start justify-between gap-2 mb-3">
+          <h2 className="text-lg font-bold text-gray-900">{k.name}</h2>
+          {k.url && (
+            <a
+              href={k.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 text-xs text-gray-400 hover:text-blue-600 transition-colors pt-0.5 whitespace-nowrap"
+              title="Zur Quelle"
+            >
+              Quelle →
+            </a>
+          )}
+        </div>
 
         <div className="mb-3">
           <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
