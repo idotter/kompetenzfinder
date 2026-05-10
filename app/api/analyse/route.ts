@@ -1,6 +1,7 @@
 import { Mistral } from "@mistralai/mistralai";
 import { NextRequest } from "next/server";
 import { getKompetenzenForFrameworks } from "@/data/kompetenzen";
+import { put } from "@vercel/blob";
 
 const client = new Mistral({ apiKey: process.env.MISTRAL_API_KEY });
 
@@ -156,10 +157,12 @@ export async function POST(req: NextRequest) {
 
   const readableStream = new ReadableStream({
     async start(controller) {
+      let fullText = "";
       const encoder = new TextEncoder();
       for await (const chunk of stream) {
         const delta = chunk.data.choices[0]?.delta?.content;
         if (delta) {
+          fullText += delta;
           controller.enqueue(
             encoder.encode(`data: ${JSON.stringify({ type: "delta", text: delta })}\n\n`)
           );
@@ -167,6 +170,24 @@ export async function POST(req: NextRequest) {
       }
       controller.enqueue(new TextEncoder().encode("data: [DONE]\n\n"));
       controller.close();
+
+      // Save query log (fire and forget)
+      const id = crypto.randomUUID();
+      const competencyIds = [...fullText.matchAll(/^ID:\s*(.+)$/gm)].map((m) => m[1].trim());
+      const entry = {
+        id,
+        created_at: new Date().toISOString(),
+        thema,
+        fach: fach ?? null,
+        zyklus: zyklus ?? null,
+        frameworks: frameworks ?? [],
+        competency_ids: competencyIds,
+        raw_output: fullText,
+      };
+      put(`queries/${id}.json`, JSON.stringify(entry), {
+        access: "public",
+        contentType: "application/json",
+      }).catch(() => {});
     },
   });
 
