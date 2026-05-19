@@ -31,6 +31,17 @@ ${dbText}
 
 QUALITÄTSKRITERIEN:
 
+Kompetenz-Auswahl — NEGATIV-FILTER (zuerst prüfen):
+- KEIN Wort-Matching: Wenn der Kompetenzname einen Begriff enthält, der auch im Fachgebiet vorkommt (z.B. «Ambiguität» in Mathematik, «Kreativität» in Kunst), ist das KEIN Grund für die Auswahl. Der Begriff muss dieselbe Bedeutung haben.
+- KEIN Allzweck-Bezug: Teste mit «Würde diese Kompetenz bei praktisch jedem Thema passen?» — wenn ja, ist sie zu generisch für dieses Thema.
+- KEINE erzwungene Verbindung: Wenn du den Bezug erst konstruieren musst, passt die Kompetenz nicht. Sie soll sich aus dem Thema ergeben, nicht hineingebogen werden.
+- KEIN Etikettenschwindel: Ambiguitätskompetenz bedeutet Unsicherheit im Leben aushalten — nicht, dass Fachbegriffe mehrere Bedeutungen haben. Kritisches Denken bedeutet hinterfragen — nicht, dass ein Experiment ausgewertet wird.
+
+Kompetenz-Auswahl — POSITIV-KRITERIEN:
+- Die Kompetenz taucht im Unterricht zu diesem Thema UNWEIGERLICH auf — sie lässt sich nicht vermeiden
+- Oder: Das Thema bietet einen EINZIGARTIGEN Zugang zu dieser Kompetenz, den andere Themen nicht bieten
+- Die Lehrperson müsste die Kompetenz aktiv unterdrücken, damit sie NICHT auftaucht
+
 Warum-Begründung:
 - Beziehe dich auf einen konkreten Moment im Unterricht zu diesem Thema (z.B. «Beim Vergleich der Messwerte...», «Wenn Schüler:innen die Ursachen diskutieren...»)
 - Erkläre WARUM genau diese Kompetenz bei DIESEM Thema besonders gut passt — nicht generisch
@@ -46,7 +57,12 @@ Aktivitäten:
 
 ---
 
-BEISPIELAUSGABE (Fotosynthese, Biologie, Zyklus 2):
+SCHLECHTES BEISPIEL — so NICHT (Brüche, Mathematik):
+❌ ID: fs-meta-ambiguitaet — Warum: «Brüche können mehrdeutig sein (1/2 als Anteil, Verhältnis oder Operator)»
+→ FALSCH: Das ist Wort-Matching. Ambiguitätskompetenz bedeutet, mit Ungewissheit im Leben umzugehen — nicht, dass Fachbegriffe mehrere Lesarten haben. Diese Kompetenz passt NICHT zu Brüchen.
+✓ Stattdessen für Brüche: lp21-methodik-problemloesen (Schüler:innen müssen Lösungswege selbst finden), lp21-sozial-kooperation (Partnerarbeit beim Vergleichen von Lösungen), idg-thinking-systems (Brüche als Teil des Zahlensystems verstehen)
+
+GUTES BEISPIEL (Fotosynthese, Biologie, Zyklus 2):
 
 ## Einschätzung
 Die Fotosynthese verbindet Beobachten, Hypothesenbildung und Systemdenken auf natürliche Weise — Schüler:innen arbeiten mit echten Pflanzen, sehen Veränderungen und müssen Ursachen erklären. Das schafft ideale Bedingungen für methodische und kognitive Kompetenzen.
